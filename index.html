@@ -1,0 +1,38 @@
+<html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.0/react.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.0/react-dom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<style type="text/css">
+  h1,h2,h3{line-height:1.6; font-size: 25px !important;}
+  header{line-height: 1.6}
+  body{margin:40px auto;max-width:650px;color:#444;padding:0 10px}}
+</style>
+<link rel="stylesheet" type="text/css" href="reddit.css">
+
+<script type="text/babel">
+ var BBC_feed = 'http://feeds.bbci.co.uk/news/rss.xml?callback=';
+ $.get(BBC_feed, function(data){
+    console.log(data);
+    $(data).find("item").each(function(){
+      var desc = $(this).find("description").text();
+      var title = $(this).find("title").text();
+      var cur_words = desc+' '+title;
+      console.log(cur_words);
+      var re_letters = /[^a-zA-Z]/;
+      cur_words = cur_words.replace(re_letters, '');
+      console.log(cur_words);
+    })
+    var words=[];
+
+ });
+ console.log('hey');
+</script>
+
+<div id="content">
+  hey
+</div>
+
+
+
+</html>
