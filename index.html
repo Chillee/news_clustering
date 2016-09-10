@@ -15,6 +15,7 @@
 <script type="text/babel">
  var BBC_feed = 'http://feeds.bbci.co.uk/news/world/rss.xml';
  var NYT_feed = 'http://rss.nytimes.com/services/xml/rss/nyt/World.xml';
+ var WSJ_feed = 'http://www.wsj.com/xml/rss/3_7085.xml'
 
  var prepare_text = function(str){
   var re_letters = /[^a-zA-Z]/g;
@@ -23,7 +24,7 @@
   str = str.split(/\ +/);
   return str;
  }
- var RSS_feeds = [BBC_feed, NYT_feed];
+ var RSS_feeds = [BBC_feed, NYT_feed, WSJ_feed];
  var articles = [];
  var finished_loading_count = 0;
  RSS_feeds.forEach(function(obj){
@@ -33,41 +34,61 @@
       } else {
         var new_data = data;
       }
+      console.log(new_data);
       var texts= [];
+      var total_loading = 0;
+      var finished_loading = 0;
       $(new_data).find("item").each(function(){
-        console.log($(this).text());
         var desc = $(this).find("description").text();
         var title = $(this).find("title").text();
+        var link = $(this).find("link").text();
+        total_loading +=1;
+        $.get(link, function(data){
+          console.log("hey");
+          var cur_words = prepare_text($(data).text());
+          cur_words = cur_words.map(function(x){return stemmer(x, false);});
+          finished_loading+=1;
+        });
         var cur_words = desc+' '+title;
         cur_words = prepare_text(cur_words);
         cur_words = cur_words.map(function(x){return stemmer(x, false);});
-        cur_words = cur_words.join(' ');
         texts.push({text: cur_words});
       })
       articles = articles.concat(texts);
       finished_loading_count ++;
-      if (finished_loading_count==RSS_feeds.length){
+      if (finished_loading_count==RSS_feeds.length && total_loading == finished_loading){
         generateVoc(articles);
       }
    }); 
  })
+
  var vocab = [];
- var generateVoc = function(obj){
+ var VOCAB_LENGTH = 4000;
+ var generateVoc = function(articles){
   var dict = {};
-  obj.forEach(function(obj){
-    var word_list = obj.text.split(' ');
+  articles.forEach(function(obj){
+    var word_list = obj.text;
     word_list.forEach(function(obj){
       dict[obj] = (dict[obj]||0)+1;
     })
   });
-  vocab = Object.keys(dict).sort(function(a, b){return dict[b]-dict[a];});
+  vocab = Object.keys(dict).sort(function(a, b){return dict[b]-dict[a];}).slice(0, VOCAB_LENGTH);
   for(var i=0; i<20; i++){
     console.log(vocab[i], dict[vocab[i]]);
   }
-  console.log(vocab.length);
-  console.log(articles.length);
+  articles.forEach(function(article){
+    var vec = new Array(VOCAB_LENGTH).fill(0);
+    var text = article.text;
+    vocab.forEach(function(word, idx){
+      if (text.indexOf(word)!=-1){
+        vec[idx] = 1;
+      }
+    });
+    article.vec = vec;
+  });
 
  }
+
 
 
  console.log('hey');
