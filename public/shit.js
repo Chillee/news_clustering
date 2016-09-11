@@ -439,7 +439,7 @@ var removeStopWords = function(array) {
         ['z', 1]]
     )
     for (var i=0; i<array.length; i++){
-        if (!stop_words.has(array[i]) && array[i].length < 10){
+        if (!stop_words.has(array[i]) && array[i].length < 10 && array[i].length > 1){
             new_array.push(array[i]);
         }
     } 
